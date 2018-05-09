@@ -22,7 +22,7 @@ then
     IS_CREATE=true
 fi
 
-if [ "$IS_CREATE" ]
+if [ "$IS_CREATE" == "true" ]
 then
     # Create the function using the zipped code...
     echo "Creating Lambda function $FUNCTION_NAME..."
