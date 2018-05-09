@@ -21,7 +21,7 @@ DELETE = False
 QUEUE_NAME = 'dmarc-import-queue'
 
 # The name of this Lambda function
-LAMBDA_FUNCTION_NAME = 'xxx'
+LAMBDA_FUNCTION_NAME = 'dmarc-import'
 
 
 def handler(event, context):
@@ -49,7 +49,7 @@ def handler(event, context):
     # Set up logging
     log_level = logging.DEBUG
     logging.basicConfig(format='%(asctime)-15s %(levelname)s %(message)s',
-                        level=log_level.upper())
+                        level=log_level)
     logging.info('AWS Event was: {}'.format(event))
 
     if 'source' in event and event['source'] == 'aws.events':
@@ -59,24 +59,28 @@ def handler(event, context):
         
         # Launch a bunch of other lambdas to process events in the SQS queue
         lambda_client = boto3_client('lambda')
-        sqs_resource = boto3_resource('sqs')
-        queue = sqs.get_queue_by_name(QueueName=QUEUE_NAME)
-        for message in queue.receive_messages(MaxNumberOfMessages=10,
-                                              VisibilityTimeout=330):
+        sqs_client = boto3_client('sqs')
+        queue_url = sqs_client.get_queue_url(QueueName=QUEUE_NAME)['QueueUrl']
+        response = sqs_client.receive_message(QueueUrl=queue_url,
+                                              MaxNumberOfMessages=1,
+                                              VisibilityTimeout=330)
+        for message in response['Messages']:
             logging.debug('Message from queue is {}'.format(message))
             lambda_client.invoke(FunctionName=LAMBDA_FUNCTION_NAME,
                                  InvocationType='Event',
                                  Payload=json.dumps(message))
     else:
-        # This is an S3 ObjectCreated event.
+        # This is an SQS message relayed by the parent Lambda function.
         #
         # Extract some variables from the event dictionary.  See
         # https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html
         # for details on the event structure corresponding to objects created in an
         # S3 bucket.
-        for record in event['Records']:
-            bucket = record['bucket']['arn']
-            key = record['object']['key']
+        receipt_handle = event['ReceiptHandle']
+        body = json.loads(event['Body'])
+        for record in body['Records']:
+            bucket = record['s3']['bucket']['arn']
+            key = record['s3']['object']['key']
 
             # Process the DMARC aggregate reports
             s3.do_it(schema, DOMAINS, REPORTS, elasticsearch, es_region,
