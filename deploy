@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+###
+# Usage:
+#
+# ./deploy [--create]
+#
+# The --create flag will create a new function.  Otherwise, the
+# function is assumed to exist and will be updated in place.
+#
+# If you are using the --create flag, then 
+#
+# Examples:
+#   AWS_LAMBDA_ROLE="MyLambdaRole" ./deploy --create
+#   ./deploy
+###
+
+FUNCTION_NAME="dmarc-import"
+IS_CREATE=false
+if [ "$1" == "--create" ]
+then
+    IS_CREATE=true
+fi
+
+if [ "$IS_CREATE" ]
+then
+    # Create the function using the zipped code...
+    echo "Creating Lambda function $FUNCTION_NAME..."
+    aws lambda create-function \
+        --function-name $FUNCTION_NAME \
+        --zip-file fileb://./$FUNCTION_NAME.zip \
+        --role $AWS_LAMBDA_ROLE \
+        --handler lambda_handler.handler \
+        --runtime python3.6 \
+        --timeout 300 \
+        --memory-size 128
+else
+    # ...or update the function's code with the latest zipped code.
+    echo "Updating Lambda code for $FUNCTION_NAME..."
+    aws lambda update-function-code \
+        --function-name $FUNCTION_NAME \
+        --zip-file fileb://./$FUNCTION_NAME.zip
+fi
