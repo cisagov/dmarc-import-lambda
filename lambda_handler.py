@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 from boto3 import client as boto3_client
 from boto3 import resource as boto3_resource
@@ -17,11 +18,21 @@ REPORTS = None
 # successfully processed
 DELETE = False
 
-# The name of the SQS queue containing the events to be processed
-QUEUE_NAME = 'dmarc-import-queue'
+# The XSD file against which the DMARC aggregate reports are to be be verified
+SCHEMA = 'dmarc/rua_mod.xsd'
 
-# The name of this Lambda function
-LAMBDA_FUNCTION_NAME = 'dmarc-import'
+# The Dmarcian API token
+TOKEN = None
+
+# This Lambda function expects the following environment variables to be
+# defined:
+# 1. queue_url - The url of the SQS queue containing the events to be
+# processed
+# 2. elasticsearch_url - A URL corresponding to an AWS Elasticsearch
+# instance, including the index where the DMARC aggregate reports
+# should be written
+# 3. elasticsearch_region - The AWS region where the Elasticsearch
+# instance is located
 
 
 def handler(event, context):
@@ -60,13 +71,12 @@ def handler(event, context):
         # Launch a bunch of other lambdas to process events in the SQS queue
         lambda_client = boto3_client('lambda')
         sqs_client = boto3_client('sqs')
-        queue_url = sqs_client.get_queue_url(QueueName=QUEUE_NAME)['QueueUrl']
-        response = sqs_client.receive_message(QueueUrl=queue_url,
+        response = sqs_client.receive_message(QueueUrl=os.environ['queue_url'],
                                               MaxNumberOfMessages=1,
                                               VisibilityTimeout=330)
         for message in response['Messages']:
             logging.debug('Message from queue is {}'.format(message))
-            lambda_client.invoke(FunctionName=LAMBDA_FUNCTION_NAME,
+            lambda_client.invoke(FunctionName=os.environ['AWS_LAMBDA_FUNCTION_NAME'],
                                  InvocationType='Event',
                                  Payload=json.dumps(message))
     else:
@@ -79,9 +89,11 @@ def handler(event, context):
         receipt_handle = event['ReceiptHandle']
         body = json.loads(event['Body'])
         for record in body['Records']:
-            bucket = record['s3']['bucket']['arn']
+            bucket = record['s3']['bucket']['name']
             key = record['s3']['object']['key']
 
             # Process the DMARC aggregate reports
-            s3.do_it(schema, DOMAINS, REPORTS, elasticsearch, es_region,
-                     token, bucket, key, DELETE)
+            s3.do_it(SCHEMA, bucket, key, DOMAINS, REPORTS,
+                     os.environ['elasticsearch_url'],
+                     os.environ['elasticsearch_region'], TOKEN,
+                     DELETE)
