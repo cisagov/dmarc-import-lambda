@@ -75,12 +75,12 @@ def handler(event, context):
 
         # Launch a bunch of other lambdas to process events in the SQS queue
         while True:
-            response = sqs_client.receive_message(QueueUrl=os.environ['queue_url'], # noqa: E501
+            response = sqs_client.receive_message(QueueUrl=os.environ['queue_url'],  # noqa: E501
                                                   MaxNumberOfMessages=10,
                                                   VisibilityTimeout=330)
             for message in response['Messages']:
                 logging.debug('Message from queue is {}'.format(message))
-                lambda_client.invoke(FunctionName=os.environ['AWS_LAMBDA_FUNCTION_NAME'], # noqa: E501
+                lambda_client.invoke(FunctionName=os.environ['AWS_LAMBDA_FUNCTION_NAME'],  # noqa: E501
                                      InvocationType='Event',
                                      Payload=json.dumps(message))
     else:
