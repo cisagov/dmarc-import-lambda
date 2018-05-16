@@ -3,7 +3,6 @@ import logging
 import os
 
 from boto3 import client as boto3_client
-from boto3 import resource as boto3_resource
 
 from dmarc import s3
 
@@ -73,15 +72,15 @@ def handler(event, context):
         # This is a scheduled event.  See
         # https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/EventTypes.html#schedule_event_type
         # for an example of what these events look like.
-        
+
         # Launch a bunch of other lambdas to process events in the SQS queue
         while True:
-            response = sqs_client.receive_message(QueueUrl=os.environ['queue_url'],
+            response = sqs_client.receive_message(QueueUrl=os.environ['queue_url'], # noqa: E501
                                                   MaxNumberOfMessages=10,
                                                   VisibilityTimeout=330)
             for message in response['Messages']:
                 logging.debug('Message from queue is {}'.format(message))
-                lambda_client.invoke(FunctionName=os.environ['AWS_LAMBDA_FUNCTION_NAME'],
+                lambda_client.invoke(FunctionName=os.environ['AWS_LAMBDA_FUNCTION_NAME'], # noqa: E501
                                      InvocationType='Event',
                                      Payload=json.dumps(message))
     else:
@@ -89,8 +88,8 @@ def handler(event, context):
         #
         # Extract some variables from the event dictionary.  See
         # https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html
-        # for details on the event structure corresponding to objects created in an
-        # S3 bucket.
+        # for details on the event structure corresponding to objects created
+        # in an S3 bucket.
         receipt_handle = event['ReceiptHandle']
         body = json.loads(event['Body'])
         success = {}
