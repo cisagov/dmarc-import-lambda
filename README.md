@@ -2,35 +2,18 @@
 
 [![Build Status](https://travis-ci.com/dhs-ncats/dmarc-import-lambda.svg?branch=develop)](https://travis-ci.com/dhs-ncats/dmarc-import-lambda)
 
-`dmarc-import-lambda` contains code to build AWS Lambda functions that
-utilize [`dmarc-import`](https://github.com/dhs-ncats/dmarc-import) to
-parse DMARC aggregate reports.
+`dmarc-import-lambda` contains code to build an AWS Lambda function
+that utilizes
+[`dmarc-import`](https://github.com/dhs-ncats/dmarc-import) to parse
+DMARC aggregate reports.
 
-## Examples ##
+## Example ##
 
-### All scanners ###
-
-Building the environment zip files for all scanners and deploying them
-to AWS Lambda using `domain-scan`:
+Building the AWS Lambda zip file:
 1. `cd ~/dhs-ncats/dmarc-import-lambda`
+2. `docker-compose down`
 2. `docker-compose build`
 3. `docker-compose up`
-4. `cp *.zip ~/18F/domain-scan/lambda/envs/`
-5. `cd ~/18F/domain-scan`
-6. `./lambda/deploy pshtt --create`
-7. `./lambda/deploy sslyze --create`
-8. `./lambda/deploy trustymail --create`
-
-### One scanner ###
-
-Building the `pshtt` environment zip file and deploying it to AWS
-Lambda using `domain-scan`:
-1. `cd ~/dhs-ncats/lambda_functions`
-2. `docker-compose build build_pshtt`
-3. `docker-compose up build_pshtt`
-4. `cp pshtt.zip ~/18F/domain-scan/lambda/envs/`
-5. `cd ~/18F/domain-scan`
-6. `./lambda/deploy pshtt --create`
 
 ## Note ##
 
