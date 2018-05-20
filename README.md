@@ -1,6 +1,6 @@
 # dmarc-import-lambda :postal_horn: :mailbox: #
 
-[![Build Status](https://travis-ci.org/dhs-ncats/dmarc-import-lambda.svg?branch=develop)](https://travis-ci.org/dhs-ncats/dmarc-import-lambda)
+[![Build Status](https://travis-ci.com/dhs-ncats/dmarc-import-lambda.svg?branch=develop)](https://travis-ci.com/dhs-ncats/dmarc-import-lambda)
 
 `dmarc-import-lambda` contains code to build AWS Lambda functions that
 utilize [`dmarc-import`](https://github.com/dhs-ncats/dmarc-import) to
