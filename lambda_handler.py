@@ -51,7 +51,7 @@ if root.handlers:
         root.removeHandler(handler)
 
         # Set up logging
-        log_level = logging.DEBUG
+        log_level = logging.WARNING
         logging.basicConfig(format='%(asctime)-15s %(levelname)s %(message)s',
                             level=log_level)
 
