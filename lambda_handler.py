@@ -105,6 +105,7 @@ def handler(event, context):
             returnVal = s3.do_it(SCHEMA, bucket, key,
                                  DOMAINS, REPORTS,
                                  os.environ['elasticsearch_url'],
+                                 os.environ['elasticsearch_index'],
                                  os.environ['elasticsearch_region'],
                                  TOKEN, DELETE)
             logging.debug('Response from do_it() is {}'.format(returnVal))
