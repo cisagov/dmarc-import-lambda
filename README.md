@@ -10,7 +10,7 @@ DMARC aggregate reports.
 ## Example ##
 
 Building the AWS Lambda zip file:
-1. `cd ~/dhs-ncats/dmarc-import-lambda`
+1. `cd ~/cisagov/dmarc-import-lambda`
 2. `docker-compose down`
 2. `docker-compose build`
 3. `docker-compose up`
