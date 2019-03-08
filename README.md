@@ -1,10 +1,10 @@
 # dmarc-import-lambda :postal_horn: :mailbox: #
 
-[![Build Status](https://travis-ci.com/dhs-ncats/dmarc-import-lambda.svg?branch=develop)](https://travis-ci.com/dhs-ncats/dmarc-import-lambda)
+[![Build Status](https://travis-ci.com/cisagov/dmarc-import-lambda.svg?branch=develop)](https://travis-ci.com/cisagov/dmarc-import-lambda)
 
 `dmarc-import-lambda` contains code to build an AWS Lambda function
 that utilizes
-[`dmarc-import`](https://github.com/dhs-ncats/dmarc-import) to parse
+[`dmarc-import`](https://github.com/cisagov/dmarc-import) to parse
 DMARC aggregate reports.
 
 ## Example ##
